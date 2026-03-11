@@ -4,7 +4,7 @@ from .models import Flat
 
 @admin.register(Flat)
 class FlatAdmin(admin.ModelAdmin):
-    search_fields = ['town', 'town_district', 'address']
+    search_fields = ['town', 'town_district', 'address', 'owner']
 
     readonly_fields = ['created_at']
 
@@ -38,6 +38,13 @@ class FlatAdmin(admin.ModelAdmin):
 
     list_editable = ['new_building', 'price']
 
-    list_filter = ['new_building', 'town', 'active']
+    list_filter = [
+        'new_building',
+        'active',
+        'town',
+        'rooms_number',
+        'has_balcony',
+        'construction_year',
+    ]
 
     list_per_page = 20
