@@ -7,11 +7,11 @@ from phonenumber_field.modelfields import PhoneNumberField
 class Flat(models.Model):
     owner = models.CharField('ФИО владельца', max_length=200)
     owners_phonenumber = models.CharField('Номер владельца', max_length=20)
-
     owner_pure_phone = PhoneNumberField(
         'Нормализованный номер владельца',
         blank=True,
         null=True,
+        region='RU',
         help_text='Номер в международном формате, например: +71234567890'
     )
 
@@ -111,3 +111,53 @@ class Complaint(models.Model):
         verbose_name = 'Жалоба'
         verbose_name_plural = 'Жалобы'
         ordering = ['-created_at']
+
+
+class Owner(models.Model):
+    name = models.CharField(
+        'ФИО владельца',
+        max_length=200,
+        db_index=True
+    )
+
+    phonenumber = models.CharField(
+        'Номер владельца',
+        max_length=20,
+        db_index=True
+    )
+
+    pure_phone = PhoneNumberField(
+        'Нормализованный номер владельца',
+        blank=True,
+        null=True,
+        region='RU',
+        db_index=True,
+        help_text='Номер в международном формате, например: +71234567890'
+    )
+
+    flats = models.ManyToManyField(
+        Flat,
+        related_name='owners',
+        verbose_name='Квартиры в собственности',
+        blank=True,
+        help_text='Квартиры, которые принадлежат этому собственнику'
+    )
+
+    created_at = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
+
+    updated_at = models.DateTimeField(
+        'Дата обновления',
+        auto_now=True
+    )
+
+    def __str__(self):
+        return f'{self.name} ({self.pure_phone or self.phonenumber})'
+
+    class Meta:
+        verbose_name = 'Собственник'
+        verbose_name_plural = 'Собственники'
+        ordering = ['name']
