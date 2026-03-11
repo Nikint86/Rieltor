@@ -16,7 +16,8 @@ class FlatAdmin(admin.ModelAdmin):
             'fields': ('town', 'town_district', 'address', 'floor')
         }),
         ('Характеристики', {
-            'fields': ('price', 'rooms_number', 'living_area', 'has_balcony', 'construction_year', 'new_building')
+            'fields': ('price', 'rooms_number', 'living_area', 'has_balcony',
+                       'construction_year', 'new_building')
         }),
         ('Описание', {
             'fields': ('description',)
@@ -27,6 +28,16 @@ class FlatAdmin(admin.ModelAdmin):
         }),
     )
 
-    list_display = ('address', 'town', 'price', 'rooms_number', 'active', 'created_at', 'new_building')
+    list_display = [
+        'address',
+        'price',
+        'new_building',
+        'construction_year',
+        'town',
+    ]
 
-    list_filter = ('active', 'town', 'rooms_number', 'has_balcony', 'new_building')
+    list_editable = ['new_building', 'price']
+
+    list_filter = ['new_building', 'town', 'active']
+
+    list_per_page = 20
