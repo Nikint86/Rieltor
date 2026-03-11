@@ -39,7 +39,8 @@ class FlatAdmin(admin.ModelAdmin):
         'construction_year',
         'town',
         'owner',
-        'owner_pure_phone',
+        'owner_phone_display',
+        'owner_pure_phone_display',
         'likes_count',
     ]
 
@@ -57,6 +58,18 @@ class FlatAdmin(admin.ModelAdmin):
     raw_id_fields = ['liked_by']
 
     list_per_page = 20
+
+    def owner_phone_display(self, obj):
+        return obj.owners_phonenumber or '-'
+
+    owner_phone_display.short_description = 'Исходный номер'
+
+    def owner_pure_phone_display(self, obj):
+        if obj.owner_pure_phone:
+            return str(obj.owner_pure_phone)
+        return '-'
+
+    owner_pure_phone_display.short_description = 'Нормализованный номер'
 
     def likes_count(self, obj):
         return obj.liked_by.count()
