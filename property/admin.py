@@ -124,42 +124,34 @@ class OwnerAdmin(admin.ModelAdmin):
 
     raw_id_fields = ['flats']
 
-    readonly_fields = ['created_at', 'updated_at', 'flats_count_display']
+    readonly_fields = ['created_at', 'updated_at']
 
     fieldsets = (
         ('Основная информация', {
-            'fields': ('name', 'phonenumber', 'pure_phone')
+            'fields': ('name', 'phonenumber', 'pure_phone'),
+            'description': 'Основные данные о собственнике'
         }),
-        ('Квартиры', {
-            'fields': ('flats', 'flats_count_display'),
-            'description': 'Квартиры, принадлежащие этому собственнику'
+        ('Квартиры в собственности', {
+            'fields': ('flats',),
+            'description': 'Выберите квартиры, принадлежащие этому собственнику (можно выбрать несколько)'
         }),
         ('Служебная информация', {
             'fields': ('created_at', 'updated_at'),
-            'classes': ('wide',)
+            'classes': ('wide',),
+            'description': 'Системная информация о записи'
         }),
     )
 
     list_per_page = 50
 
+    date_hierarchy = 'created_at'
+
     def flats_count(self, obj):
-        return obj.flats.count()
+        count = obj.flats.count()
+        return count
 
     flats_count.short_description = 'Кол-во квартир'
     flats_count.admin_order_field = 'flats'
-
-    def flats_count_display(self, obj):
-        count = obj.flats.count()
-        if count == 0:
-            return 'Нет квартир'
-        elif count == 1:
-            return '1 квартира'
-        elif 2 <= count <= 4:
-            return f'{count} квартиры'
-        else:
-            return f'{count} квартир'
-
-    flats_count_display.short_description = 'Квартир в собственности'
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('flats')
