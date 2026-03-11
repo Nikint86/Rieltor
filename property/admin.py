@@ -5,6 +5,7 @@ from .models import Flat, Complaint
 @admin.register(Flat)
 class FlatAdmin(admin.ModelAdmin):
     search_fields = ['town', 'town_district', 'address', 'owner']
+
     readonly_fields = ['created_at']
 
     fieldsets = (
@@ -21,16 +22,45 @@ class FlatAdmin(admin.ModelAdmin):
         ('Описание', {
             'fields': ('description',)
         }),
+        ('Лайки', {
+            'fields': ('liked_by',),
+            'description': 'Пользователи, которым понравилась эта квартира'
+        }),
         ('Служебная информация', {
             'fields': ('created_at', 'active'),
             'classes': ('wide',)
         }),
     )
 
-    list_display = ['address', 'price', 'new_building', 'construction_year', 'town']
+    list_display = [
+        'address',
+        'price',
+        'new_building',
+        'construction_year',
+        'town',
+        'likes_count',
+    ]
+
     list_editable = ['new_building', 'price']
-    list_filter = ['new_building', 'active', 'town', 'rooms_number', 'has_balcony']
+
+    list_filter = [
+        'new_building',
+        'active',
+        'town',
+        'rooms_number',
+        'has_balcony',
+        'construction_year',
+    ]
+
+    raw_id_fields = ['liked_by']
+
     list_per_page = 20
+
+    def likes_count(self, obj):
+        return obj.liked_by.count()
+
+    likes_count.short_description = 'Кол-во лайков'
+    likes_count.admin_order_field = 'liked_by'
 
 
 @admin.register(Complaint)
