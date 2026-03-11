@@ -4,14 +4,11 @@ from .models import Flat, Complaint, Owner
 
 @admin.register(Flat)
 class FlatAdmin(admin.ModelAdmin):
-    search_fields = ['town', 'town_district', 'address', 'owner', 'owners_phonenumber', 'owner_pure_phone']
+    search_fields = ['town', 'town_district', 'address', 'owners__name', 'owners__phonenumber']
 
     readonly_fields = ['created_at']
 
     fieldsets = (
-        ('Владелец', {
-            'fields': ('owner', 'owners_phonenumber', 'owner_pure_phone')
-        }),
         ('Адрес', {
             'fields': ('town', 'town_district', 'address', 'floor')
         }),
@@ -21,6 +18,10 @@ class FlatAdmin(admin.ModelAdmin):
         }),
         ('Описание', {
             'fields': ('description',)
+        }),
+        ('Собственники', {
+            'fields': ('owners',),
+            'description': 'Собственники этой квартиры'
         }),
         ('Лайки', {
             'fields': ('liked_by',),
@@ -38,10 +39,8 @@ class FlatAdmin(admin.ModelAdmin):
         'new_building',
         'construction_year',
         'town',
-        'owner',
-        'owner_phone_display',
-        'owner_pure_phone_display',
-        'owners_list',
+        'get_owners_names',
+        'get_owners_phones',
         'likes_count',
     ]
 
@@ -56,29 +55,25 @@ class FlatAdmin(admin.ModelAdmin):
         'construction_year',
     ]
 
-    raw_id_fields = ['liked_by']
+    raw_id_fields = ['liked_by', 'owners']
 
     list_per_page = 20
 
-    def owner_phone_display(self, obj):
-        return obj.owners_phonenumber or '-'
+    def get_owners_names(self, obj):
+        return ", ".join([owner.name for owner in obj.owners.all()[:3]])
 
-    owner_phone_display.short_description = 'Исходный номер'
+    get_owners_names.short_description = 'Собственники'
 
-    def owner_pure_phone_display(self, obj):
-        if obj.owner_pure_phone:
-            return str(obj.owner_pure_phone)
-        return '-'
+    def get_owners_phones(self, obj):
+        phones = []
+        for owner in obj.owners.all()[:3]:
+            if owner.pure_phone:
+                phones.append(str(owner.pure_phone))
+            elif owner.phonenumber:
+                phones.append(owner.phonenumber)
+        return ", ".join(phones)
 
-    owner_pure_phone_display.short_description = 'Нормализованный номер'
-
-    def owners_list(self, obj):
-        owners = obj.owners.all()
-        if owners:
-            return ', '.join([owner.name for owner in owners[:3]])
-        return '-'
-
-    owners_list.short_description = 'Собственники'
+    get_owners_phones.short_description = 'Телефоны'
 
     def likes_count(self, obj):
         return obj.liked_by.count()
@@ -118,7 +113,7 @@ class OwnerAdmin(admin.ModelAdmin):
         'phonenumber',
         'pure_phone',
         'flats_count',
-        'flats_list',
+        'flats_preview',
         'created_at',
     ]
 
@@ -143,7 +138,7 @@ class OwnerAdmin(admin.ModelAdmin):
         }),
         ('Квартиры в собственности', {
             'fields': ('flats',),
-            'description': 'Выберите квартиры, принадлежащие этому собственнику'
+            'description': 'Квартиры, принадлежащие этому собственнику'
         }),
         ('Служебная информация', {
             'fields': ('created_at', 'updated_at'),
@@ -160,13 +155,13 @@ class OwnerAdmin(admin.ModelAdmin):
     flats_count.short_description = 'Кол-во квартир'
     flats_count.admin_order_field = 'flats'
 
-    def flats_list(self, obj):
+    def flats_preview(self, obj):
         flats = obj.flats.all()[:3]
         if flats:
-            return ', '.join([f"кв.{flat.id}" for flat in flats])
+            return ', '.join([flat.address[:30] + '...' if len(flat.address) > 30 else flat.address for flat in flats])
         return '-'
 
-    flats_list.short_description = 'Квартиры'
+    flats_preview.short_description = 'Квартиры'
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('flats')
