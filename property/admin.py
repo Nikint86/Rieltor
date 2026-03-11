@@ -4,13 +4,13 @@ from .models import Flat, Complaint
 
 @admin.register(Flat)
 class FlatAdmin(admin.ModelAdmin):
-    search_fields = ['town', 'town_district', 'address', 'owner']
+    search_fields = ['town', 'town_district', 'address', 'owner', 'owners_phonenumber', 'owner_pure_phone']
 
     readonly_fields = ['created_at']
 
     fieldsets = (
         ('Владелец', {
-            'fields': ('owner', 'owners_phonenumber')
+            'fields': ('owner', 'owners_phonenumber', 'owner_pure_phone')
         }),
         ('Адрес', {
             'fields': ('town', 'town_district', 'address', 'floor')
@@ -38,6 +38,8 @@ class FlatAdmin(admin.ModelAdmin):
         'new_building',
         'construction_year',
         'town',
+        'owner',
+        'owner_pure_phone',
         'likes_count',
     ]
 

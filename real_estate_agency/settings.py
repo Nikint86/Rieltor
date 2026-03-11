@@ -15,7 +15,6 @@ SECRET_KEY = env.str('SECRET_KEY', 'REPLACE_ME')
 
 DEBUG = env.bool('DEBUG', True)
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -27,6 +26,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
 
+    # Сторонние приложения
+    'phonenumber_field',  # Добавляем библиотеку для телефонов
+
+    # Наше приложение
     'property.apps.PropertyConfig',
 ]
 
@@ -78,7 +81,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -102,3 +104,7 @@ DATABASES = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+
+PHONENUMBER_DEFAULT_REGION = 'RU'  
+PHONENUMBER_DEFAULT_FORMAT = 'INTERNATIONAL'
