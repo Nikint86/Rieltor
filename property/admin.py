@@ -41,6 +41,7 @@ class FlatAdmin(admin.ModelAdmin):
         'owner',
         'owner_phone_display',
         'owner_pure_phone_display',
+        'owners_list',
         'likes_count',
     ]
 
@@ -70,6 +71,14 @@ class FlatAdmin(admin.ModelAdmin):
         return '-'
 
     owner_pure_phone_display.short_description = 'Нормализованный номер'
+
+    def owners_list(self, obj):
+        owners = obj.owners.all()
+        if owners:
+            return ', '.join([owner.name for owner in owners[:3]])
+        return '-'
+
+    owners_list.short_description = 'Собственники'
 
     def likes_count(self, obj):
         return obj.liked_by.count()
@@ -109,6 +118,7 @@ class OwnerAdmin(admin.ModelAdmin):
         'phonenumber',
         'pure_phone',
         'flats_count',
+        'flats_list',
         'created_at',
     ]
 
@@ -133,25 +143,30 @@ class OwnerAdmin(admin.ModelAdmin):
         }),
         ('Квартиры в собственности', {
             'fields': ('flats',),
-            'description': 'Выберите квартиры, принадлежащие этому собственнику (можно выбрать несколько)'
+            'description': 'Выберите квартиры, принадлежащие этому собственнику'
         }),
         ('Служебная информация', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('wide',),
-            'description': 'Системная информация о записи'
         }),
     )
 
     list_per_page = 50
-
     date_hierarchy = 'created_at'
 
     def flats_count(self, obj):
-        count = obj.flats.count()
-        return count
+        return obj.flats.count()
 
     flats_count.short_description = 'Кол-во квартир'
     flats_count.admin_order_field = 'flats'
+
+    def flats_list(self, obj):
+        flats = obj.flats.all()[:3]
+        if flats:
+            return ', '.join([f"кв.{flat.id}" for flat in flats])
+        return '-'
+
+    flats_list.short_description = 'Квартиры'
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('flats')
