@@ -1,15 +1,10 @@
-from django.db import migrations, models
+from django.db import migrations
 
 
 def set_new_building(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
-
-    new_buildings = Flat.objects.filter(construction_year__gte=2015).update(new_building=True)
-    old_buildings = Flat.objects.filter(construction_year__lt=2015).update(new_building=False)
-
-    print(f'\nОбновлено {new_buildings} новостроек')
-    print(f'Обновлено {old_buildings} старых зданий')
-    print(f'Не заполнено: {Flat.objects.filter(construction_year__isnull=True).count()} квартир')
+    Flat.objects.filter(construction_year__gte=2015).update(new_building=True)
+    Flat.objects.filter(construction_year__lt=2015).update(new_building=False)
 
 
 def reverse_new_building(apps, schema_editor):
@@ -18,6 +13,7 @@ def reverse_new_building(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+
     dependencies = [
         ('property', '0004_flat_new_building'),
     ]

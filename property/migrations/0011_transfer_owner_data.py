@@ -6,20 +6,10 @@ def transfer_owners(apps, schema_editor):
     Owner = apps.get_model('property', 'Owner')
 
     flats = Flat.objects.all()
-    total_flats = flats.count()
-    created_count = 0
-    found_count = 0
 
-    print(f"\nНачинаем перенос данных о собственниках...")
-    print(f"Всего квартир: {total_flats}")
-
-    for i, flat in enumerate(flats.iterator(), 1):
-        if i % 100 == 0:
-            print(f"Обработано {i}/{total_flats} квартир")
-
+    for flat in flats.iterator():
         if not flat.owner:
             continue
-
 
         owner, created = Owner.objects.get_or_create(
             pure_phone=flat.owner_pure_phone if flat.owner_pure_phone else None,
@@ -29,10 +19,7 @@ def transfer_owners(apps, schema_editor):
             }
         )
 
-        if created:
-            created_count += 1
-        else:
-            found_count += 1
+        if not created:
             need_update = False
             if owner.name != flat.owner:
                 owner.name = flat.owner
@@ -48,21 +35,10 @@ def transfer_owners(apps, schema_editor):
 
         owner.flats.add(flat)
 
-    print(f"\n{'=' * 50}")
-    print(f"ПЕРЕНОС ДАННЫХ ЗАВЕРШЕН")
-    print(f"{'=' * 50}")
-    print(f"Всего обработано квартир: {total_flats}")
-    print(f"Создано новых собственников: {created_count}")
-    print(f"Найдено существующих собственников: {found_count}")
-    print(f"Всего собственников в базе: {Owner.objects.count()}")
-    print(f"{'=' * 50}")
-
 
 def reverse_transfer(apps, schema_editor):
     Owner = apps.get_model('property', 'Owner')
-    count = Owner.objects.count()
     Owner.objects.all().delete()
-    print(f"\nУдалено {count} собственников")
 
 
 class Migration(migrations.Migration):
