@@ -165,14 +165,14 @@ class FlatAdmin(admin.ModelAdmin):
 
 @admin.register(Complaint)
 class ComplaintAdmin(admin.ModelAdmin):
-    list_display = ['user', 'flat', 'short_text', 'created_at']
-    list_filter = ['created_at', 'user']
+    list_display = ['author', 'flat', 'short_text', 'created_at']
+    list_filter = ['created_at', 'author']
 
-    raw_id_fields = ['user', 'flat']
+    raw_id_fields = ['author', 'flat']
 
     readonly_fields = ['created_at']
 
-    search_fields = ['text', 'user__username', 'flat__address']
+    search_fields = ['text', 'author__username', 'flat__address']
 
     list_per_page = 50
 
@@ -184,7 +184,7 @@ class ComplaintAdmin(admin.ModelAdmin):
     short_text.short_description = 'Текст жалобы'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user', 'flat')
+        return super().get_queryset(request).select_related('author', 'flat')
 
 
 @admin.register(Owner)
