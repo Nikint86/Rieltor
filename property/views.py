@@ -30,6 +30,8 @@ def show_flats(request):
     towns = Flat.objects.values_list(
         'town', flat=True).distinct().order_by('town')
 
+    flats = flats.prefetch_related('owners')
+
     return render(request, 'flats_list.html', {
         'flats': flats[:10],
         'towns': towns,
