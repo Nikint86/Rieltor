@@ -11,27 +11,13 @@ def transfer_owners(apps, schema_editor):
         if not flat.owner:
             continue
 
-        owner, created = Owner.objects.get_or_create(
+        owner, _ = Owner.objects.get_or_create(
             pure_phone=flat.owner_pure_phone if flat.owner_pure_phone else None,
             defaults={
                 'name': flat.owner,
                 'phonenumber': flat.owners_phonenumber or '',
             }
         )
-
-        if not created:
-            need_update = False
-            if owner.name != flat.owner:
-                owner.name = flat.owner
-                need_update = True
-            if flat.owners_phonenumber and owner.phonenumber != flat.owners_phonenumber:
-                owner.phonenumber = flat.owners_phonenumber
-                need_update = True
-            if flat.owner_pure_phone and not owner.pure_phone:
-                owner.pure_phone = flat.owner_pure_phone
-                need_update = True
-            if need_update:
-                owner.save()
 
         owner.flats.add(flat)
 
