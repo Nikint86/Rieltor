@@ -72,8 +72,9 @@ class Complaint(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Кто жалуется',
-        related_name='complaints'
+        verbose_name='Автор жалобы',
+        related_name='complaints',
+        help_text='Пользователь, который оставил жалобу'
     )
 
     flat = models.ForeignKey(
@@ -96,7 +97,7 @@ class Complaint(models.Model):
     )
 
     def __str__(self):
-        return f'Жалоба от {self.user} на {self.flat}'
+        return f'Жалоба от {self.author} на {self.flat}'
 
     class Meta:
         verbose_name = 'Жалоба'
